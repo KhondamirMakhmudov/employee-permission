@@ -1,8 +1,10 @@
 // app/manager/login/page.jsx
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const ManagerLoginPage = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -99,7 +101,7 @@ const ManagerLoginPage = () => {
                 className="flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-gray-900 border border-gray-300 bg-white h-14 placeholder:text-gray-500 px-4 text-base font-normal leading-normal focus:outline-0 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
                 placeholder="Введите имя пользователя"
                 required
-                type="email"
+                type="text"
               />
             </div>
 
@@ -111,12 +113,6 @@ const ManagerLoginPage = () => {
                 >
                   Пароль
                 </label>
-                <button
-                  type="button"
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-500 transition-colors"
-                >
-                  Забыли пароль?
-                </button>
               </div>
               <div className="flex w-full items-stretch rounded-lg group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 border border-gray-300 bg-white overflow-hidden transition-all duration-200">
                 <input
@@ -140,6 +136,7 @@ const ManagerLoginPage = () => {
             </div>
 
             <button
+              onClick={() => router.push("/manager-login/dashboard")}
               className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-bold leading-normal tracking-[0.015em] transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
               disabled={isLoading}
@@ -152,7 +149,7 @@ const ManagerLoginPage = () => {
             <div className="flex items-center justify-center gap-2 pt-2">
               <span className="text-gray-500 text-sm">Вы сотрудник?</span>
               <Link
-                href="/employee"
+                href="/employee-permission"
                 className="text-blue-600 font-bold text-sm hover:underline"
               >
                 Форма для сотрудников

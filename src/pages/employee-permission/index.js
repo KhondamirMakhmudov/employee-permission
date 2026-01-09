@@ -7,6 +7,7 @@ import FormSection from "@/components/form-container/FormSection";
 import FormContainer from "@/components/form-container/index";
 import SubmitButton from "@/components/button";
 import InfoAlert from "@/components/info-alert";
+import Link from "next/link";
 
 const EmployeePage = () => {
   const handleSubmit = async (e) => {
@@ -29,16 +30,18 @@ const EmployeePage = () => {
   return (
     <div>
       <Header>
-        <div className="flex items-center gap-4">
-          <div className="size-6 text-blue-400 flex items-center justify-center">
-            <span className="material-symbols-outlined text-3xl">
-              shield_person
-            </span>
+        <Link href={"/"}>
+          <div className="flex items-center gap-4">
+            <div className="size-6 text-blue-400 flex items-center justify-center">
+              <span className="material-symbols-outlined text-3xl">
+                shield_person
+              </span>
+            </div>
+            <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">
+              Система пропусков
+            </h2>
           </div>
-          <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">
-            Система пропусков
-          </h2>
-        </div>
+        </Link>
       </Header>
 
       <main className="flex-1 w-full flex items-center justify-center p-4 md:p-8">
