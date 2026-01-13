@@ -32,7 +32,7 @@ const EmployeeCard = ({
         <div className="flex justify-between items-start">
           <div className="flex gap-3">
             <div
-              className="size-12 rounded-full bg-cover bg-center flex-shrink-0"
+              className="size-12 rounded-full bg-cover bg-center shrink-0"
               style={{ backgroundImage: `url('${avatarUrl}')` }}
             />
             <div>
