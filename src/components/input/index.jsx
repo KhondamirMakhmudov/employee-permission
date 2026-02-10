@@ -1,39 +1,62 @@
-import React from "react";
+import { useState } from "react";
 
 const Input = ({
-  id,
   label,
-  type = "text",
-  placeholder = "",
   required = false,
-  icon,
-  className = "",
+  type = "text",
+  name,
+  placeholder,
+  value,
+  onChange,
+  error,
+  classNames = "",
+  inputClass = "",
+  labelClass = "",
   ...props
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const inputType = isPassword ? (showPassword ? "text" : "password") : type;
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`relative ${classNames}`}>
       {label && (
-        <label htmlFor={id} className="text-slate-700 text-sm font-semibold">
+        <label
+          htmlFor={name}
+          className={`block mb-1 text-sm text-gray-700 ${labelClass}`}
+        >
           {label}
+          {required && <span className="text-red-500"> *</span>}
         </label>
       )}
-      <div className="relative">
-        <input
-          id={id}
-          type={type}
-          placeholder={placeholder}
-          required={required}
-          className={`w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder-slate-400 ${
-            icon ? "pl-11" : ""
-          } ${className}`}
-          {...props}
-        />
-        {icon && (
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">
-            {icon}
+
+      <input
+        {...props}
+        id={name}
+        name={name}
+        type={inputType}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className={`w-full h-[55px] border border-gray-300 rounded-[5px] p-2 pr-10 focus:outline-none focus:ring-2 ${
+          error ? "focus:ring-red-500" : "focus:ring-blue-500"
+        } ${inputClass}`}
+        style={{}}
+      />
+
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-[65%] transform -translate-y-1/2 text-gray-500"
+        >
+          <span className="material-symbols-outlined">
+            {showPassword ? "visibility_off" : "visibility"}
           </span>
-        )}
-      </div>
+        </button>
+      )}
+
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

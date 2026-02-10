@@ -37,7 +37,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center justify-between">
           <AnimatePresence mode="wait">
-            <Link href={"/"}>
+            <Link href={"/manager-login"}>
               <div className="flex items-center gap-4">
                 <div className="size-6 text-blue-400 flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl">
@@ -67,7 +67,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
               "w-full flex items-center rounded-lg px-4 py-3 transition-all duration-200",
               activeItem === item.label
                 ? "bg-blue-600 text-white shadow-md"
-                : "hover:bg-gray-800 text-gray-300 hover:text-white"
+                : "hover:bg-gray-800 text-gray-300 hover:text-white",
             )}
           >
             <span className="material-symbols-outlined flex-shrink-0">
