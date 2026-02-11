@@ -21,4 +21,44 @@ requestPython.interceptors.response.use(
   },
 );
 
-export { requestPython };
+const requestGeneralAuth = axios.create({
+  baseURL: config.GENERAL_AUTH_URL,
+  params: {},
+  headers: {
+    common: {
+      Accept: "application/json",
+      "Content-Type": "application/json; charset=utf-8",
+    },
+  },
+});
+
+requestGeneralAuth.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+const requestEmployeeDetail = axios.create({
+  baseURL: `${config.GENERAL_AUTH_URL}`,
+  params: {},
+  headers: {
+    common: {
+      Accept: "application/json",
+      "Content-Type": "application/json; charset=utf-8",
+    },
+  },
+});
+
+requestEmployeeDetail.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+export { requestPython, requestGeneralAuth, requestEmployeeDetail };

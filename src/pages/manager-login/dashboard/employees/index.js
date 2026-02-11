@@ -1,7 +1,6 @@
 import DashboardLayout from "@/layout/Dashboard";
-
 const Index = () => {
-  return <DashboardLayout></DashboardLayout>;
+  return <DashboardLayout headerTitle="Сотрудники"></DashboardLayout>;
 };
 
 export default Index;

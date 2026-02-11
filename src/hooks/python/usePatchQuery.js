@@ -2,22 +2,22 @@ import { toast } from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { requestPython } from "@/services/api";
 
-const patchRequest = async (url, attributes, config = {}) => {
-  const response = await requestPython.patch(url, attributes, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(config.headers || {}),
-    },
-    ...config,
-  });
-  return response.data;
-};
-
 const usePatchPythonQuery = ({
   hideSuccessToast = false,
   hideErrorToast = false,
   listKeyId = null,
+  apiClient = requestPython, // ✅ Accept apiClient as parameter
 }) => {
+  const patchRequest = async (url, attributes, config = {}) => {
+    const response = await apiClient.patch(url, attributes, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(config.headers || {}),
+      },
+      ...config,
+    });
+    return response.data;
+  };
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -30,7 +30,7 @@ const usePatchPythonQuery = ({
       }
 
       if (listKeyId) {
-        queryClient.invalidateQueries([listKeyId]);
+        queryClient.invalidateQueries({ queryKey: [listKeyId] });
       }
     },
 

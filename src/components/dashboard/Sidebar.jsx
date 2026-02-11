@@ -3,9 +3,15 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { signOut } from "next-auth/react";
+import Modal from "@/components/modal";
+import toast from "react-hot-toast";
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
-  const [activeItem, setActiveItem] = useState("Главная");
+  const router = useRouter();
+  const currentPath = router.asPath;
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const menuItems = [
     { id: "main", label: "Главная", icon: "dashboard" },
@@ -25,55 +31,104 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     collapsed: { opacity: 0, x: -20 },
   };
 
+  const getItemHref = (item) =>
+    item.id === "main"
+      ? "/manager-login/dashboard"
+      : `/manager-login/dashboard/${item.id}`;
+
+  const isItemActive = (item) => {
+    const href = getItemHref(item);
+    if (href === "/manager-login/dashboard") {
+      return currentPath === href;
+    }
+    return currentPath.startsWith(href);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false });
+      toast.success("Вы успешно вышли из системы");
+      router.push("/manager-login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Ошибка при выходе из системы");
+    }
+  };
+
   return (
-    <motion.aside
-      className="flex flex-col justify-center items-center h-screen bg-gray-900 text-white"
-      animate={isCollapsed ? "collapsed" : "expanded"}
-      variants={sidebarVariants}
-      initial="expanded"
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-    >
-      {/* Logo/Header */}
-      <div className="p-6 border-b border-gray-800">
-        <div className="flex items-center justify-between">
-          <AnimatePresence mode="wait">
-            <Link href={"/manager-login"}>
-              <div className="flex items-center gap-4">
-                <div className="size-6 text-blue-400 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-3xl">
-                    shield_person
-                  </span>
+    <>
+      <motion.aside
+        className="flex flex-col justify-center items-center h-screen bg-gray-900 text-white"
+        animate={isCollapsed ? "collapsed" : "expanded"}
+        variants={sidebarVariants}
+        initial="expanded"
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        {/* Logo/Header */}
+        <div className="p-6 border-b border-gray-800">
+          <div className="flex items-center justify-between">
+            <AnimatePresence mode="wait">
+              <Link href={"/manager-login"}>
+                <div className="flex items-center gap-4">
+                  <div className="size-6 text-blue-400 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-3xl">
+                      shield_person
+                    </span>
+                  </div>
+                  {!isCollapsed ? (
+                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">
+                      Система пропусков
+                    </h2>
+                  ) : (
+                    ""
+                  )}
                 </div>
-                {!isCollapsed ? (
-                  <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">
-                    Система пропусков
-                  </h2>
-                ) : (
-                  ""
-                )}
-              </div>
-            </Link>
-          </AnimatePresence>
+              </Link>
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => (
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1">
+          {menuItems.map((item) => (
+            <Link
+              key={item.id}
+              href={getItemHref(item)}
+              className={clsx(
+                "w-full flex items-center rounded-lg px-4 py-3 transition-all duration-200",
+                isItemActive(item)
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "hover:bg-gray-800 text-gray-300 hover:text-white",
+              )}
+            >
+              <span className="material-symbols-outlined shrink-0">
+                {item.icon}
+              </span>
+
+              <AnimatePresence>
+                {!isCollapsed && (
+                  <motion.span
+                    variants={itemVariants}
+                    initial="collapsed"
+                    animate="expanded"
+                    exit="collapsed"
+                    className="ml-4 font-medium"
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Logout Button */}
+        <div className="p-4 border-t border-gray-800">
           <button
-            key={item.id}
-            onClick={() => setActiveItem(item.label)}
-            className={clsx(
-              "w-full flex items-center rounded-lg px-4 py-3 transition-all duration-200",
-              activeItem === item.label
-                ? "bg-blue-600 text-white shadow-md"
-                : "hover:bg-gray-800 text-gray-300 hover:text-white",
-            )}
+            onClick={() => setShowExitModal(true)}
+            className="w-full flex items-center rounded-lg px-4 py-3 hover:bg-gray-800 transition-colors"
           >
-            <span className="material-symbols-outlined flex-shrink-0">
-              {item.icon}
-            </span>
-
+            <span className="material-symbols-outlined">logout</span>
             <AnimatePresence>
               {!isCollapsed && (
                 <motion.span
@@ -81,36 +136,29 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
                   initial="collapsed"
                   animate="expanded"
                   exit="collapsed"
-                  className="ml-4 font-medium text-left whitespace-nowrap overflow-hidden"
+                  className="ml-4 font-medium"
                 >
-                  {item.label}
+                  Выход
                 </motion.span>
               )}
             </AnimatePresence>
           </button>
-        ))}
-      </nav>
+        </div>
+      </motion.aside>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-gray-800">
-        <button className="w-full flex items-center rounded-lg px-4 py-3 hover:bg-gray-800 transition-colors">
-          <span className="material-symbols-outlined">logout</span>
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.span
-                variants={itemVariants}
-                initial="collapsed"
-                animate="expanded"
-                exit="collapsed"
-                className="ml-4 font-medium"
-              >
-                Выход
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-      </div>
-    </motion.aside>
+      {/* Exit Confirmation Modal */}
+      <Modal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={handleLogout}
+        title="Выход из системы"
+        message="Вы уверены, что хотите выйти из панели управления?"
+        confirmText="Да, выйти"
+        cancelText="Отмена"
+        confirmButtonStyle="danger"
+        icon="logout"
+      />
+    </>
   );
 };
 

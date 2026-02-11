@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import MainHeader from "@/components/dashboard/MainContentHeader";
 import clsx from "clsx";
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, headerTitle = "Главная" }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
@@ -12,7 +12,7 @@ const DashboardLayout = ({ children }) => {
       <div
         className={clsx(
           "transition-all duration-300 ease-in-out",
-          isSidebarCollapsed ? "w-20" : "w-64"
+          isSidebarCollapsed ? "w-20" : "w-64",
         )}
       >
         <Sidebar
@@ -26,6 +26,7 @@ const DashboardLayout = ({ children }) => {
         {/* Header */}
         <MainHeader
           onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          headerTitle={headerTitle}
         />
 
         {/* Main Content */}

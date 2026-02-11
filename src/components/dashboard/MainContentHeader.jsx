@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
+import { useSession } from "next-auth/react";
 
-const MainHeader = ({ onToggleSidebar }) => {
+const MainHeader = ({ onToggleSidebar, headerTitle = " Главная" }) => {
+  const { data: session } = useSession();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -45,7 +47,7 @@ const MainHeader = ({ onToggleSidebar }) => {
           </button>
 
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Дашборд</h1>
+            <h1 className="text-xl font-bold text-gray-900">{headerTitle}</h1>
             <p className="text-sm text-gray-500">Обзор системы пропусков</p>
           </div>
         </div>
@@ -97,7 +99,7 @@ const MainHeader = ({ onToggleSidebar }) => {
                         key={notification.id}
                         className={clsx(
                           "p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer",
-                          !notification.read && "bg-blue-50"
+                          !notification.read && "bg-blue-50",
                         )}
                       >
                         <div className="flex items-start space-x-3">
@@ -137,13 +139,15 @@ const MainHeader = ({ onToggleSidebar }) => {
               className="flex items-center space-x-3 p-1 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="Меню пользователя"
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white">
+              <div className="w-9 h-9 bg-linear-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white">
                 <span className="material-symbols-outlined text-lg">
                   person
                 </span>
               </div>
               <div className="text-left hidden md:block">
-                <p className="font-medium text-gray-900 text-sm">А.С. Иванов</p>
+                <p className="font-medium text-gray-900 text-sm">
+                  {session?.user?.name}
+                </p>
                 <p className="text-xs text-gray-500">Руководитель отдела</p>
               </div>
               <span className="material-symbols-outlined text-gray-500">

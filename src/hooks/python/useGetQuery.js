@@ -13,57 +13,48 @@ const useGetQuery = ({
   enabled = true,
   redirectOn403 = true,
   redirectOn500 = true,
+  apiClient = requestPython, // ✅ Accept apiClient as parameter
 }) => {
   const router = useRouter();
 
-  const { isLoading, isError, data, error, isFetching } = useQuery(
-    [key, params],
-    () =>
-      requestPython.get(url, {
+  const { isPending, isError, data, error, isFetching } = useQuery({
+    queryKey: [key, params],
+    queryFn: () =>
+      apiClient.get(url, {
         params,
         headers,
       }),
-    {
-      keepPreviousData: true,
+    placeholderData: (previousData) => previousData, // Replaces keepPreviousData
+    enabled,
+  });
 
-      onSuccess: () => {
-        if (showSuccessMsg) {
-          toast.success("SUCCESS");
-        }
-      },
+  // Handle success
+  if (data && showSuccessMsg) {
+    toast.success("SUCCESS");
+  }
 
-      onError: (error) => {
-        const status = error?.response?.status;
+  // Handle errors
+  if (error) {
+    const status = error?.response?.status;
 
-        // 🔴 401
-        if (status === 401) {
-          router.replace("/401");
-          return;
-        }
-
-        // 🔴 403
-        if (status === 403 && redirectOn403) {
-          router.replace("/403");
-          return;
-        }
-
-        // 🔴 500
-        if (status >= 500 && redirectOn500) {
-          router.replace("/500");
-          return;
-        }
-
-        if (showErrorMsg) {
-          toast.error(error?.response?.data?.message || "Ошибка запроса");
-        }
-      },
-
-      enabled,
-    },
-  );
+    // 🔴 401
+    if (status === 401) {
+      router.replace("/401");
+    }
+    // 🔴 403
+    else if (status === 403 && redirectOn403) {
+      router.replace("/403");
+    }
+    // 🔴 500
+    else if (status >= 500 && redirectOn500) {
+      router.replace("/500");
+    } else if (showErrorMsg) {
+      toast.error(error?.response?.data?.message || "Ошибка запроса");
+    }
+  }
 
   return {
-    isLoading,
+    isLoading: isPending,
     isError,
     data,
     error,
