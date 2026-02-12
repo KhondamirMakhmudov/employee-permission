@@ -1,12 +1,7 @@
 import Header from "@/components/header";
 import Link from "next/link";
-import toast from "react-hot-toast";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { useRouter } from "next/router";
 
 export default function Home() {
-
   return (
     <div className="bg-white">
       <Header>
@@ -58,10 +53,10 @@ export default function Home() {
               </p>
             </div>
             <Link
-              href={"/employee-permission"}
+              href={"/employee-permission/login"}
               className="w-full flex items-center justify-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
             >
-              Открыть форму
+              Войти
             </Link>
           </div>
 
