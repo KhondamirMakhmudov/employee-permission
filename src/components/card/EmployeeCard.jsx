@@ -2,28 +2,34 @@ const EmployeeCard = ({
   name,
   position,
   department,
-  avatarUrl,
-  priority,
+  status,
   visitPurpose,
   date,
   duration,
+  timeStart,
+  timeEnd,
   onApprove,
   onReject,
 }) => {
-  const priorityStyles = {
-    urgent: {
-      bg: "bg-orange-100",
-      text: "text-orange-700",
-      label: "Срочно",
+  const statusStyles = {
+    "ожидает решения": {
+      bg: "bg-yellow-100",
+      text: "text-yellow-700",
+      label: "Ожидает",
     },
-    planned: {
-      bg: "bg-blue-100",
-      text: "text-blue-700",
-      label: "Планово",
+    разрешено: {
+      bg: "bg-green-100",
+      text: "text-green-700",
+      label: "Одобрено",
+    },
+    отказано: {
+      bg: "bg-red-100",
+      text: "text-red-700",
+      label: "Отклонено",
     },
   };
 
-  const currentPriority = priorityStyles[priority] || priorityStyles.planned;
+  const currentStatus = statusStyles[status] || statusStyles["ожидает решения"];
 
   return (
     <div className="group flex flex-col bg-white rounded-xl border border-[#dbdfe6] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -31,10 +37,6 @@ const EmployeeCard = ({
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex gap-3">
-            <div
-              className="size-12 rounded-full bg-cover bg-center shrink-0"
-              style={{ backgroundImage: `url('${avatarUrl}')` }}
-            />
             <div>
               <h3 className="text-[#111318] font-bold text-lg">{name}</h3>
               <p className="text-[#616f89] text-sm">
@@ -43,14 +45,14 @@ const EmployeeCard = ({
             </div>
           </div>
           <span
-            className={`px-2 py-1 rounded ${currentPriority.bg} ${currentPriority.text} text-xs font-bold uppercase tracking-wider`}
+            className={`px-2 py-1 rounded ${currentStatus.bg} ${currentStatus.text} text-xs font-bold uppercase tracking-wider`}
           >
-            {currentPriority.label}
+            {currentStatus.label}
           </span>
         </div>
 
         {/* Visit Purpose */}
-        <div className="flex flex-col gap-2 py-2">
+        <div className="flex-1 flex flex-col gap-2 py-2">
           <p className="text-sm font-medium text-[#616f89]">Цель визита</p>
           <p className="text-[#111318] text-sm leading-relaxed">
             {visitPurpose}
@@ -65,7 +67,7 @@ const EmployeeCard = ({
           <div className="flex flex-col">
             <span className="text-[#111318] text-sm font-semibold">{date}</span>
             <span className="text-[#616f89] text-xs">
-              Длительность: {duration}
+              {timeStart} - {timeEnd} • Длительность: {duration}
             </span>
           </div>
         </div>

@@ -66,8 +66,6 @@ const EmployeePage = () => {
     enabled: !!session?.accessToken && !!selectedEmployee?.id,
   });
 
-  console.log(getAllChiefs, "get all chiefs");
-
   // Get employee list from API response
   const employeeList = get(employeeInfo, "data.data", []);
 

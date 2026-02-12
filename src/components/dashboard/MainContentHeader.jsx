@@ -165,9 +165,9 @@ const MainHeader = ({ onToggleSidebar, headerTitle = " Главная" }) => {
                 >
                   <div className="p-4 border-b border-gray-200">
                     <p className="font-semibold text-gray-900">
-                      Алексей Иванов
+                      {session?.user?.name}
                     </p>
-                    <p className="text-sm text-gray-500">a.ivanov@company.ru</p>
+                    {/* <p className="text-sm text-gray-500">a.ivanov@company.ru</p> */}
                   </div>
 
                   <div className="p-2">
