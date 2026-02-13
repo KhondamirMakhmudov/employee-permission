@@ -89,7 +89,7 @@ const EmployeeLoginPage = () => {
   };
 
   const handleEnter = () => {
-    router.push("/employee-permission");
+    router.push("/employee-permission/request");
   };
 
   const handleExit = async () => {

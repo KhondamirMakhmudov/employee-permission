@@ -11,15 +11,28 @@ import toast from "react-hot-toast";
 const Sidebar = ({ isCollapsed, onToggle }) => {
   const router = useRouter();
   const currentPath = router.asPath;
+  const isEmployeeRoute = currentPath.startsWith("/employee-permission");
   const [showExitModal, setShowExitModal] = useState(false);
-
-  const menuItems = [
-    { id: "main", label: "Главная", icon: "dashboard" },
-    { id: "applications", label: "Активные заявки", icon: "pending_actions" },
-    { id: "employees", label: "Сотрудники", icon: "people" },
-    { id: "reports", label: "Отчеты", icon: "assessment" },
-    { id: "settings", label: "Настройки", icon: "settings" },
+  const managerFolderMenuItems = [
+    {
+      id: "active-requests",
+      label: "Активные заявки",
+      icon: "pending_actions",
+    },
+    { id: "all-requests", label: "Все заявки", icon: "list_alt" },
+    { id: "archive", label: "Архив", icon: "inventory_2" },
+    // { id: "employees", label: "Сотрудники", icon: "people" },
   ];
+
+  const employeeMenuItems = [
+    { id: "main", label: "Все заявки", icon: "list_alt" },
+    { id: "request", label: "Создать заявку", icon: "add_circle" },
+    // { id: "archive", label: "Архив", icon: "inventory_2" },
+  ];
+
+  const menuItems = isEmployeeRoute
+    ? employeeMenuItems
+    : managerFolderMenuItems;
 
   const sidebarVariants = {
     expanded: { width: 256 },
@@ -31,13 +44,20 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     collapsed: { opacity: 0, x: -20 },
   };
 
-  const getItemHref = (item) =>
-    item.id === "main"
-      ? "/manager-login/dashboard"
-      : `/manager-login/dashboard/${item.id}`;
+  const getItemHref = (item) => {
+    if (isEmployeeRoute) {
+      return item.id === "main"
+        ? "/employee-permission"
+        : `/employee-permission/${item.id}`;
+    }
+    return `/manager-login/dashboard/${item.id}`;
+  };
 
   const isItemActive = (item) => {
     const href = getItemHref(item);
+    if (isEmployeeRoute && item.id === "main") {
+      return currentPath === "/employee-permission";
+    }
     if (href === "/manager-login/dashboard") {
       return currentPath === href;
     }

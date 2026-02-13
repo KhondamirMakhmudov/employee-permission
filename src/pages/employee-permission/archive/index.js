@@ -7,19 +7,15 @@ import { KEYS } from "@/constants/key";
 import { requestGeneralAuth, requestPython } from "@/services/api";
 import EmployeeCard from "@/components/card/EmployeeCard";
 import { get } from "lodash";
-import { useEffect, useState } from "react";
-import usePostQuery from "@/hooks/python/usePostQuery";
-import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
 const Index = () => {
-  const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [employeesData, setEmployeesData] = useState({});
 
   const { data: allRequests } = useGetQuery({
-    key: KEYS.allRequests,
-    url: URLS.allRequests,
+    key: KEYS.owner,
+    url: URLS.owner,
     apiClient: requestPython,
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
@@ -28,17 +24,20 @@ const Index = () => {
       limit: 10,
       offset: 0,
     },
-    enabled: !!session?.accessToken, // Only fetch when accessToken is available
+    enabled: !!session?.accessToken,
   });
 
-  // Get requests list from API response
   const requestsList = get(allRequests, "data.data", []);
+  const archiveRequests = useMemo(
+    () => requestsList.filter((r) => r.status !== "ожидает решения"),
+    [requestsList],
+  );
 
   // Fetch all employees data automatically
   useEffect(() => {
     const fetchAllEmployees = async () => {
       const uniqueEmployeeIds = [
-        ...new Set(requestsList.map((r) => r.employee_id)),
+        ...new Set(archiveRequests.map((r) => r.employee_id)),
       ];
 
       const results = {};
@@ -64,10 +63,10 @@ const Index = () => {
       setEmployeesData(results);
     };
 
-    if (requestsList.length > 0 && session?.accessToken) {
+    if (archiveRequests.length > 0 && session?.accessToken) {
       fetchAllEmployees();
     }
-  }, [requestsList, session?.accessToken]);
+  }, [archiveRequests, session?.accessToken]);
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
@@ -99,75 +98,13 @@ const Index = () => {
     return `${mins}м`;
   };
 
-  const { mutate: approveRequest } = usePostQuery({
-    listKeyId: "approveRequest",
-    apiClient: requestPython,
-  });
-
-  const handleApprove = (request) => {
-    approveRequest(
-      {
-        url: `${URLS.approveRequest}/${request.id}`,
-        attributes: {
-          status: "разрешено",
-          reason: request.description || null,
-        },
-        config: {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Заявка одобрена");
-          // Invalidate and refetch the allRequests query to get updated data
-          queryClient.invalidateQueries({ queryKey: [KEYS.allRequests] });
-        },
-        onError: (error) => {
-          toast.error("Ошибка при одобрении заявки");
-          console.error("Approve error:", error);
-        },
-      },
-    );
-  };
-
-  const handleReject = (request) => {
-    approveRequest(
-      {
-        url: `${URLS.approveRequest}/${request.id}`,
-        attributes: {
-          status: "отказано",
-          reason: request.description || null,
-        },
-        config: {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Заявка отклонена");
-          // Invalidate and refetch the allRequests query to get updated data
-          queryClient.invalidateQueries({ queryKey: [KEYS.allRequests] });
-        },
-        onError: (error) => {
-          toast.error("Ошибка при отклонении заявки");
-          console.error("Reject error:", error);
-        },
-      },
-    );
-  };
-
-  // Show login prompt if user is not authenticated
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
           <div className="flex flex-col items-center text-center space-y-6">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-blue-100 to-indigo-100">
-              <span className="material-symbols-outlined text-4xl text-blue-600">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-emerald-100 to-teal-100">
+              <span className="material-symbols-outlined text-4xl text-emerald-600">
                 lock
               </span>
             </div>
@@ -177,30 +114,17 @@ const Index = () => {
                 Требуется аутентификация
               </h1>
               <p className="text-gray-600">
-                Пожалуйста, войдите в систему для доступа к панели управления
-                руководителя.
+                Пожалуйста, войдите в систему для доступа к архиву.
               </p>
             </div>
 
             <Link
-              href="/manager-login"
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              href="/employee-permission/login"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
               <span className="material-symbols-outlined">login</span>
               <span>Войти</span>
             </Link>
-
-            <div className="pt-4 border-t border-gray-200 w-full">
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                <span>Вы сотрудник?</span>
-                <Link
-                  href="/employee-permission"
-                  className="text-blue-600 font-semibold hover:underline"
-                >
-                  Вход для сотрудников
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -208,11 +132,11 @@ const Index = () => {
   }
 
   return (
-    <DashboardLayout headerTitle="Все заявки">
+    <DashboardLayout headerTitle="Архив">
       <div className="space-y-6">
-        {requestsList.length > 0 ? (
+        {archiveRequests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requestsList.map((request) => {
+            {archiveRequests.map((request) => {
               const employeeData = employeesData[request.employee_id];
 
               const employeeName = employeeData
@@ -226,8 +150,6 @@ const Index = () => {
               const employeeDepartment = employeeData
                 ? get(employeeData, "workplace.organizational_unit.name", "—")
                 : "—";
-
-              const canAction = request.status === "ожидает решения";
 
               return (
                 <div key={request.id} className="relative">
@@ -244,12 +166,6 @@ const Index = () => {
                       request.startDate,
                       request.endDate,
                     )}
-                    onApprove={
-                      canAction ? () => handleApprove(request) : undefined
-                    }
-                    onReject={
-                      canAction ? () => handleReject(request) : undefined
-                    }
                   />
                 </div>
               );
@@ -258,12 +174,12 @@ const Index = () => {
         ) : (
           <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-gray-200">
             <span className="material-symbols-outlined text-5xl text-gray-300 mb-4">
-              inbox
+              inventory_2
             </span>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Нет заявок
+              Архив пуст
             </h3>
-            <p className="text-gray-500">Запросов пока нет</p>
+            <p className="text-gray-500">Завершенных заявок пока нет</p>
           </div>
         )}
       </div>

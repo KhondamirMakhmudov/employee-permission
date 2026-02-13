@@ -7,13 +7,9 @@ import { KEYS } from "@/constants/key";
 import { requestGeneralAuth, requestPython } from "@/services/api";
 import EmployeeCard from "@/components/card/EmployeeCard";
 import { get } from "lodash";
-import { useEffect, useState } from "react";
-import usePostQuery from "@/hooks/python/usePostQuery";
-import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
 const Index = () => {
-  const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [employeesData, setEmployeesData] = useState({});
 
@@ -33,12 +29,16 @@ const Index = () => {
 
   // Get requests list from API response
   const requestsList = get(allRequests, "data.data", []);
+  const archiveRequests = useMemo(
+    () => requestsList.filter((r) => r.status !== "ожидает решения"),
+    [requestsList],
+  );
 
   // Fetch all employees data automatically
   useEffect(() => {
     const fetchAllEmployees = async () => {
       const uniqueEmployeeIds = [
-        ...new Set(requestsList.map((r) => r.employee_id)),
+        ...new Set(archiveRequests.map((r) => r.employee_id)),
       ];
 
       const results = {};
@@ -64,10 +64,10 @@ const Index = () => {
       setEmployeesData(results);
     };
 
-    if (requestsList.length > 0 && session?.accessToken) {
+    if (archiveRequests.length > 0 && session?.accessToken) {
       fetchAllEmployees();
     }
-  }, [requestsList, session?.accessToken]);
+  }, [archiveRequests, session?.accessToken]);
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
@@ -99,68 +99,6 @@ const Index = () => {
     return `${mins}м`;
   };
 
-  const { mutate: approveRequest } = usePostQuery({
-    listKeyId: "approveRequest",
-    apiClient: requestPython,
-  });
-
-  const handleApprove = (request) => {
-    approveRequest(
-      {
-        url: `${URLS.approveRequest}/${request.id}`,
-        attributes: {
-          status: "разрешено",
-          reason: request.description || null,
-        },
-        config: {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Заявка одобрена");
-          // Invalidate and refetch the allRequests query to get updated data
-          queryClient.invalidateQueries({ queryKey: [KEYS.allRequests] });
-        },
-        onError: (error) => {
-          toast.error("Ошибка при одобрении заявки");
-          console.error("Approve error:", error);
-        },
-      },
-    );
-  };
-
-  const handleReject = (request) => {
-    approveRequest(
-      {
-        url: `${URLS.approveRequest}/${request.id}`,
-        attributes: {
-          status: "отказано",
-          reason: request.description || null,
-        },
-        config: {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Заявка отклонена");
-          // Invalidate and refetch the allRequests query to get updated data
-          queryClient.invalidateQueries({ queryKey: [KEYS.allRequests] });
-        },
-        onError: (error) => {
-          toast.error("Ошибка при отклонении заявки");
-          console.error("Reject error:", error);
-        },
-      },
-    );
-  };
-
-  // Show login prompt if user is not authenticated
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
@@ -208,11 +146,11 @@ const Index = () => {
   }
 
   return (
-    <DashboardLayout headerTitle="Все заявки">
+    <DashboardLayout headerTitle="Архив заявок">
       <div className="space-y-6">
-        {requestsList.length > 0 ? (
+        {archiveRequests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requestsList.map((request) => {
+            {archiveRequests.map((request) => {
               const employeeData = employeesData[request.employee_id];
 
               const employeeName = employeeData
@@ -226,8 +164,6 @@ const Index = () => {
               const employeeDepartment = employeeData
                 ? get(employeeData, "workplace.organizational_unit.name", "—")
                 : "—";
-
-              const canAction = request.status === "ожидает решения";
 
               return (
                 <div key={request.id} className="relative">
@@ -244,12 +180,6 @@ const Index = () => {
                       request.startDate,
                       request.endDate,
                     )}
-                    onApprove={
-                      canAction ? () => handleApprove(request) : undefined
-                    }
-                    onReject={
-                      canAction ? () => handleReject(request) : undefined
-                    }
                   />
                 </div>
               );
@@ -258,12 +188,12 @@ const Index = () => {
         ) : (
           <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-gray-200">
             <span className="material-symbols-outlined text-5xl text-gray-300 mb-4">
-              inbox
+              inventory_2
             </span>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Нет заявок
+              Архив пуст
             </h3>
-            <p className="text-gray-500">Запросов пока нет</p>
+            <p className="text-gray-500">Завершенных заявок пока нет</p>
           </div>
         )}
       </div>

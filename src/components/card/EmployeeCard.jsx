@@ -27,6 +27,11 @@ const EmployeeCard = ({
       text: "text-red-700",
       label: "Отклонено",
     },
+    просрочено: {
+      bg: "bg-gray-100",
+      text: "text-gray-700",
+      label: "Просрочено",
+    },
   };
 
   const currentStatus = statusStyles[status] || statusStyles["ожидает решения"];
@@ -74,22 +79,24 @@ const EmployeeCard = ({
       </div>
 
       {/* Actions */}
-      <div className="mt-auto border-t border-[#dbdfe6] p-4 grid grid-cols-2 gap-3 bg-gray-50">
-        <button
-          onClick={onReject}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium text-sm transition-colors"
-        >
-          <span className="material-symbols-outlined text-[18px]">close</span>
-          Отклонить
-        </button>
-        <button
-          onClick={onApprove}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-blue-700 text-white font-medium text-sm transition-colors shadow-sm shadow-blue-200"
-        >
-          <span className="material-symbols-outlined text-[18px]">check</span>
-          Одобрить
-        </button>
-      </div>
+      {(onApprove || onReject) && (
+        <div className="mt-auto border-t border-[#dbdfe6] p-4 grid grid-cols-2 gap-3 bg-gray-50">
+          <button
+            onClick={onReject}
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium text-sm transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">close</span>
+            Отклонить
+          </button>
+          <button
+            onClick={onApprove}
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-blue-700 text-white font-medium text-sm transition-colors shadow-sm shadow-blue-200"
+          >
+            <span className="material-symbols-outlined text-[18px]">check</span>
+            Одобрить
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,4 +3,6 @@ export const KEYS = {
   allChiefs: "allChiefs",
   allRequests: "allRequests",
   employee: "employee",
+  owner: "owner",
+  employeeRequests: "employeeRequests",
 };

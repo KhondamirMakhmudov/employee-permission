@@ -7,7 +7,7 @@ import { KEYS } from "@/constants/key";
 import { requestGeneralAuth, requestPython } from "@/services/api";
 import EmployeeCard from "@/components/card/EmployeeCard";
 import { get } from "lodash";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import usePostQuery from "@/hooks/python/usePostQuery";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,6 +27,7 @@ const Index = () => {
     params: {
       limit: 10,
       offset: 0,
+      status: "ожидает решения",
     },
     enabled: !!session?.accessToken, // Only fetch when accessToken is available
   });
@@ -54,6 +55,7 @@ const Index = () => {
               // Extract the actual employee data from response
               const employeeData = response?.data || response;
               results[id] = employeeData;
+              console.log(`Employee ${id} data:`, employeeData);
             })
             .catch((error) => {
               console.error(`Error fetching employee ${id}:`, error);
@@ -111,6 +113,8 @@ const Index = () => {
         attributes: {
           status: "разрешено",
           reason: request.description || null,
+          // startDate: request.startDate,
+          // endDate: request.endDate,
         },
         config: {
           headers: {
@@ -139,6 +143,8 @@ const Index = () => {
         attributes: {
           status: "отказано",
           reason: request.description || null,
+          // startDate: request.startDate,
+          // endDate: request.endDate,
         },
         config: {
           headers: {
@@ -147,7 +153,7 @@ const Index = () => {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           toast.success("Заявка отклонена");
           // Invalidate and refetch the allRequests query to get updated data
           queryClient.invalidateQueries({ queryKey: [KEYS.allRequests] });
@@ -160,7 +166,6 @@ const Index = () => {
     );
   };
 
-  // Show login prompt if user is not authenticated
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
@@ -208,7 +213,7 @@ const Index = () => {
   }
 
   return (
-    <DashboardLayout headerTitle="Все заявки">
+    <DashboardLayout headerTitle="Активные заявки">
       <div className="space-y-6">
         {requestsList.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -227,8 +232,6 @@ const Index = () => {
                 ? get(employeeData, "workplace.organizational_unit.name", "—")
                 : "—";
 
-              const canAction = request.status === "ожидает решения";
-
               return (
                 <div key={request.id} className="relative">
                   <EmployeeCard
@@ -244,13 +247,10 @@ const Index = () => {
                       request.startDate,
                       request.endDate,
                     )}
-                    onApprove={
-                      canAction ? () => handleApprove(request) : undefined
-                    }
-                    onReject={
-                      canAction ? () => handleReject(request) : undefined
-                    }
+                    onApprove={() => handleApprove(request)}
+                    onReject={() => handleReject(request)}
                   />
+                  {/* Status Badge */}
                 </div>
               );
             })}
@@ -261,9 +261,11 @@ const Index = () => {
               inbox
             </span>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Нет заявок
+              Нет активных заявок
             </h3>
-            <p className="text-gray-500">Запросов пока нет</p>
+            <p className="text-gray-500">
+              Все запросы на выход рассмотрены или их нет
+            </p>
           </div>
         )}
       </div>
