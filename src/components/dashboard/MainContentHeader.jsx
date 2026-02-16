@@ -2,12 +2,34 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
+import Modal from "@/components/modal";
 
 const MainHeader = ({ onToggleSidebar, headerTitle = " Главная" }) => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const isEmployeeRoute = router.asPath.startsWith("/employee-permission");
+
+  const handleLogout = async () => {
+    try {
+      const callbackUrl = isEmployeeRoute
+        ? "/employee-permission/login"
+        : "/manager-login";
+      await signOut({ callbackUrl });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("login_type");
+      }
+      toast.success("Вы успешно вышли из системы");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Ошибка при выходе из системы");
+    }
+  };
 
   const notifications = [
     {
@@ -192,7 +214,10 @@ const MainHeader = ({ onToggleSidebar, headerTitle = " Главная" }) => {
                   </div>
 
                   <div className="p-2 border-t border-gray-200">
-                    <button className="flex items-center justify-center space-x-2 w-full p-2 text-red-600 hover:bg-red-50 rounded-lg text-sm">
+                    <button
+                      onClick={() => setShowExitModal(true)}
+                      className="flex items-center justify-center space-x-2 w-full p-2 text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                    >
                       <span className="material-symbols-outlined">logout</span>
                       <span>Выйти</span>
                     </button>
@@ -214,6 +239,18 @@ const MainHeader = ({ onToggleSidebar, headerTitle = " Главная" }) => {
           }}
         />
       )}
+
+      <Modal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={handleLogout}
+        title="Выход из системы"
+        message="Вы уверены, что хотите выйти из системы?"
+        confirmText="Да, выйти"
+        cancelText="Отмена"
+        confirmButtonStyle="danger"
+        icon="logout"
+      />
     </header>
   );
 };

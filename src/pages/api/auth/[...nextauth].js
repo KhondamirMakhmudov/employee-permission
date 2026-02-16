@@ -76,7 +76,7 @@ function extractPermissions(rolesArray) {
         allPermissions.push({
           name: permission.name,
           types: permission.types || [],
-          role: role.name, // Keep track of which role granted this permission
+          role: role.name,
         });
       });
     }
@@ -168,7 +168,7 @@ async function refreshAccessToken(token) {
         tokenType: refreshedTokens.token_type || token.tokenType || "Bearer",
         accessTokenExpires: accessTokenExpires,
         userData: newDecoded,
-        userDetails: userDetails, // Store updated user details
+        userDetails: userDetails,
         error: undefined,
       };
     } catch (error) {
@@ -405,14 +405,14 @@ export const authOptions = {
   cookies: {
     sessionToken: {
       name:
-        process.env.NODE_ENV === "production"
+        (process.env.NODE_ENV || "development") === "production"
           ? "__Secure-next-auth.session-token.project2"
           : "next-auth.session-token.project2",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: (process.env.NODE_ENV || "development") === "production",
       },
     },
   },

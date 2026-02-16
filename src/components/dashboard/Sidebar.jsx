@@ -71,9 +71,14 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
 
   const handleLogout = async () => {
     try {
-      await signOut({ redirect: false });
+      const callbackUrl = isEmployeeRoute
+        ? "/employee-permission/login"
+        : "/manager-login";
+      await signOut({ callbackUrl });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("login_type");
+      }
       toast.success("Вы успешно вышли из системы");
-      router.push("/manager-login");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Ошибка при выходе из системы");

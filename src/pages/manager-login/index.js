@@ -26,6 +26,26 @@ const ManagerLoginPage = () => {
     }
   }, [session]);
 
+  // Prevent employees from using manager login page
+  useEffect(() => {
+    if (!session?.accessToken) {
+      return;
+    }
+
+    const loginType =
+      typeof window !== "undefined"
+        ? localStorage.getItem("login_type")
+        : null;
+
+    if (loginType === "employee") {
+      router.replace("/employee-permission");
+      return;
+    }
+
+    // Manager/admin with active session
+    router.replace("/manager-login/dashboard/active-requests");
+  }, [session, router]);
+
   // Load saved logins on component mount
   useEffect(() => {
     const stored = localStorage.getItem("logins");
@@ -79,6 +99,7 @@ const ManagerLoginPage = () => {
       });
 
       if (response?.ok && !response?.error) {
+        localStorage.setItem("login_type", "manager");
         toast.success("Добро пожаловать");
         saveLogin(username, password);
         // Redirect to dashboard after successful login
@@ -102,7 +123,8 @@ const ManagerLoginPage = () => {
   };
 
   const handleExit = async () => {
-    await signOut({ redirect: false });
+    await signOut({ callbackUrl: "/" });
+    localStorage.removeItem("login_type");
     setUsername("");
     setPassword("");
     toast.success("Вы вышли из системы");
