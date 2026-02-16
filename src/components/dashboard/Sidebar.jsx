@@ -19,7 +19,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
       label: "Активные заявки",
       icon: "pending_actions",
     },
-    { id: "all-requests", label: "Все заявки", icon: "list_alt" },
+    { id: "", label: "Все заявки", icon: "list_alt" },
     { id: "archive", label: "Архив", icon: "inventory_2" },
     // { id: "employees", label: "Сотрудники", icon: "people" },
   ];
@@ -58,9 +58,14 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     if (isEmployeeRoute && item.id === "main") {
       return currentPath === "/employee-permission";
     }
-    if (href === "/manager-login/dashboard") {
-      return currentPath === href;
+    // For manager dashboard root (id: ""), match exactly
+    if (!isEmployeeRoute && item.id === "") {
+      return (
+        currentPath === "/manager-login/dashboard" ||
+        currentPath === "/manager-login/dashboard/"
+      );
     }
+    // For other items, check if path starts with href
     return currentPath.startsWith(href);
   };
 

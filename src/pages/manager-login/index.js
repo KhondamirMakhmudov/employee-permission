@@ -82,7 +82,7 @@ const ManagerLoginPage = () => {
         toast.success("Добро пожаловать");
         saveLogin(username, password);
         // Redirect to dashboard after successful login
-        router.push("/manager-login/dashboard");
+        router.push("/manager-login/dashboard/active-requests");
       } else {
         console.error("SignIn error details:", response?.error);
         toast.error(
@@ -98,7 +98,7 @@ const ManagerLoginPage = () => {
   };
 
   const handleEnter = () => {
-    router.push("/manager-login/dashboard");
+    router.push("/manager-login/dashboard/active-requests");
   };
 
   const handleExit = async () => {
