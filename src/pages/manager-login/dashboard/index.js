@@ -11,11 +11,15 @@ import { useEffect, useState } from "react";
 import usePostQuery from "@/hooks/python/usePostQuery";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { canUserDo } from "@/utils/checkPermission";
 
 const Index = () => {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [employeesData, setEmployeesData] = useState({});
+
+  const canReadRequests = canUserDo(session?.user, "passes", "all-read");
+  const canCreateRequests = canUserDo(session?.user, "passes", "create");
 
   const { data: allRequests } = useGetQuery({
     key: KEYS.allRequests,
@@ -209,64 +213,66 @@ const Index = () => {
 
   return (
     <DashboardLayout headerTitle="Все заявки">
-      <div className="space-y-6">
-        {requestsList.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requestsList.map((request) => {
-              const employeeData = employeesData[request.employee_id];
+      {canReadRequests && (
+        <div className="space-y-6">
+          {requestsList.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {requestsList.map((request) => {
+                const employeeData = employeesData[request.employee_id];
 
-              const employeeName = employeeData
-                ? `${employeeData?.last_name || ""} ${employeeData?.first_name || ""} ${employeeData?.middle_name || ""}`.trim()
-                : "Загрузка...";
+                const employeeName = employeeData
+                  ? `${employeeData?.last_name || ""} ${employeeData?.first_name || ""} ${employeeData?.middle_name || ""}`.trim()
+                  : "Загрузка...";
 
-              const employeePosition = employeeData
-                ? get(employeeData, "workplace.position.name", "—")
-                : "—";
+                const employeePosition = employeeData
+                  ? get(employeeData, "workplace.position.name", "—")
+                  : "—";
 
-              const employeeDepartment = employeeData
-                ? get(employeeData, "workplace.organizational_unit.name", "—")
-                : "—";
+                const employeeDepartment = employeeData
+                  ? get(employeeData, "workplace.organizational_unit.name", "—")
+                  : "—";
 
-              const canAction = request.status === "ожидает решения";
+                const canAction = request.status === "ожидает решения";
 
-              return (
-                <div key={request.id} className="relative">
-                  <EmployeeCard
-                    name={employeeName}
-                    position={employeePosition}
-                    department={employeeDepartment}
-                    status={request.status}
-                    visitPurpose={request.direction}
-                    date={formatDate(request.startDate)}
-                    timeStart={formatTime(request.startDate)}
-                    timeEnd={formatTime(request.endDate)}
-                    duration={calculateDuration(
-                      request.startDate,
-                      request.endDate,
-                    )}
-                    onApprove={
-                      canAction ? () => handleApprove(request) : undefined
-                    }
-                    onReject={
-                      canAction ? () => handleReject(request) : undefined
-                    }
-                  />
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-gray-200">
-            <span className="material-symbols-outlined text-5xl text-gray-300 mb-4">
-              inbox
-            </span>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Нет заявок
-            </h3>
-            <p className="text-gray-500">Запросов пока нет</p>
-          </div>
-        )}
-      </div>
+                return (
+                  <div key={request.id} className="relative">
+                    <EmployeeCard
+                      name={employeeName}
+                      position={employeePosition}
+                      department={employeeDepartment}
+                      status={request.status}
+                      visitPurpose={request.direction}
+                      date={formatDate(request.startDate)}
+                      timeStart={formatTime(request.startDate)}
+                      timeEnd={formatTime(request.endDate)}
+                      duration={calculateDuration(
+                        request.startDate,
+                        request.endDate,
+                      )}
+                      onApprove={
+                        canAction ? () => handleApprove(request) : undefined
+                      }
+                      onReject={
+                        canAction ? () => handleReject(request) : undefined
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-gray-200">
+              <span className="material-symbols-outlined text-5xl text-gray-300 mb-4">
+                inbox
+              </span>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Нет заявок
+              </h3>
+              <p className="text-gray-500">Запросов пока нет</p>
+            </div>
+          )}
+        </div>
+      )}
     </DashboardLayout>
   );
 };
