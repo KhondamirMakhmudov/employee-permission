@@ -32,9 +32,7 @@ const EmployeeLoginPage = () => {
     }
 
     const loginType =
-      typeof window !== "undefined"
-        ? localStorage.getItem("login_type")
-        : null;
+      typeof window !== "undefined" ? localStorage.getItem("login_type") : null;
 
     if (loginType === "manager") {
       router.replace("/manager-login/dashboard/active-requests");
@@ -434,7 +432,7 @@ const EmployeeLoginPage = () => {
                 lock
               </span>
               <span className="text-xs text-slate-500 font-medium">
-                Защищено системой корпоративного доступа v2.4
+                Защищено системой корпоративного доступа
               </span>
             </div>
           </div>

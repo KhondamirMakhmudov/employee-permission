@@ -39,7 +39,6 @@ const DashboardLayout = ({ children, headerTitle = "Главная" }) => {
           <div className="flex items-center justify-between text-sm text-gray-500">
             <div>© 2024 Система Пропусков. Все права защищены.</div>
             <div className="flex items-center space-x-4">
-              <span>Версия 2.1.4</span>
               <span className="material-symbols-outlined text-base">
                 security
               </span>

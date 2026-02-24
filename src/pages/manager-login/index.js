@@ -33,9 +33,7 @@ const ManagerLoginPage = () => {
     }
 
     const loginType =
-      typeof window !== "undefined"
-        ? localStorage.getItem("login_type")
-        : null;
+      typeof window !== "undefined" ? localStorage.getItem("login_type") : null;
 
     if (loginType === "employee") {
       router.replace("/employee-permission");
@@ -560,7 +558,7 @@ const ManagerLoginPage = () => {
                   <span className="material-symbols-outlined text-[16px]">
                     lock
                   </span>
-                  <span>Защищено системой корпоративного доступа v2.4</span>
+                  <span>Защищено системой корпоративного доступа</span>
                 </div>
               </div>
             </>
