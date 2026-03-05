@@ -1,10 +1,10 @@
 export const URLS = {
   employeeDetail: "/staffio/employee/search/",
   allChiefs: "/staffio/employee/all_chiefs/",
-  passRequest: "api/passes",
-  allRequests: "api/passes/chief",
+  passRequest: "passes",
+  allRequests: "passes/chief",
   employee: "staffio/employee/",
-  approveRequest: "api/passes/approve",
-  owner: "api/passes",
-  employeeRequests: "api/passes/employee",
+  approveRequest: "passes/approve",
+  owner: "passes/",
+  employeeRequests: "passes/employee",
 };

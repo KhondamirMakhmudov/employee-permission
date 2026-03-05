@@ -121,7 +121,7 @@ const ManagerLoginPage = () => {
   };
 
   const handleExit = async () => {
-    await signOut({ callbackUrl: "/" });
+    await signOut({ callbackUrl: "http://localhost:8080" });
     localStorage.removeItem("login_type");
     setUsername("");
     setPassword("");

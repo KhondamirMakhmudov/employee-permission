@@ -17,9 +17,7 @@ const MainHeader = ({ onToggleSidebar, headerTitle = " Главная" }) => {
 
   const handleLogout = async () => {
     try {
-      const callbackUrl = isEmployeeRoute
-        ? "/employee-permission/login"
-        : "/manager-login";
+      const callbackUrl = "http://localhost:8080";
       await signOut({ callbackUrl });
       if (typeof window !== "undefined") {
         localStorage.removeItem("login_type");
