@@ -16,17 +16,14 @@ const ManagerLoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSavedLogins, setShowSavedLogins] = useState(false);
 
-  // Check if user already has a session
   useEffect(() => {
     if (session?.accessToken) {
-      // User is already logged in
       const storedUsername =
         session?.user?.username || session?.user?.name || "";
       setUsername(storedUsername);
     }
   }, [session]);
 
-  // Prevent employees from using manager login page
   useEffect(() => {
     if (!session?.accessToken) {
       return;
@@ -40,11 +37,9 @@ const ManagerLoginPage = () => {
       return;
     }
 
-    // Manager/admin with active session
     router.replace("/manager-login/dashboard/active-requests");
   }, [session, router]);
 
-  // Load saved logins on component mount
   useEffect(() => {
     const stored = localStorage.getItem("logins");
     if (stored) {
