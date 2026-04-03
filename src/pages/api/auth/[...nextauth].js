@@ -283,7 +283,7 @@ export const authOptions = {
 
   callbacks: {
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("http://localhost:8080")) {
+      if (url.startsWith("http://10.20.6.139:8080")) {
         return url;
       }
       if (url.startsWith("/")) {
@@ -457,7 +457,7 @@ export const authOptions = {
 
   pages: {
     signIn: "/",
-    signOut: "localhost:3001",
+    signOut: "10.20.6.139:3001",
     error: "/auth/error",
   },
 

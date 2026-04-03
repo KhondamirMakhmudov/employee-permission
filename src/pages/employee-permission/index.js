@@ -18,7 +18,7 @@ const EmployeePage = () => {
     const handleFocus = () => {
       // Session will automatically re-validate when tab regains focus
     };
-    
+
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
   }, []);

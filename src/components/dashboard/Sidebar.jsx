@@ -71,7 +71,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
 
   const handleLogout = async () => {
     try {
-      const callbackUrl = "http://localhost:8080";
+      const callbackUrl = "http://10.20.6.139:8080";
       await signOut({ callbackUrl });
       if (typeof window !== "undefined") {
         localStorage.removeItem("login_type");

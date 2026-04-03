@@ -96,7 +96,7 @@ const EmployeeLoginPage = () => {
         localStorage.setItem("login_type", "employee");
         toast.success("Добро пожаловать!");
         saveLogin(username, password);
-        
+
         // Wait a moment for session to be established, then redirect
         setTimeout(() => {
           router.push("/employee-permission");
@@ -116,7 +116,7 @@ const EmployeeLoginPage = () => {
   };
 
   const handleExit = async () => {
-    await signOut({ callbackUrl: "http://localhost:8080" });
+    await signOut({ callbackUrl: "http://10.20.6.139:8080" });
     localStorage.removeItem("login_type");
     setUsername("");
     setPassword("");

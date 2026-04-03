@@ -12,7 +12,7 @@ function SessionErrorHandler() {
 
   useEffect(() => {
     if (session?.error === "RefreshAccessTokenError") {
-      signOut({ callbackUrl: "http://localhost:8080" });
+      signOut({ callbackUrl: "http://10.20.6.139:8080" });
     }
   }, [session]);
 
