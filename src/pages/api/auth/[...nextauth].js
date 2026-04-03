@@ -192,6 +192,19 @@ async function refreshAccessToken(token) {
 }
 
 export const authOptions = {
+  // Use JWT session strategy for stateless sessions (important for server deployments)
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 24 hours
+    updateAge: 60 * 60, // Update every hour
+  },
+  
+  // JWT configuration
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET || "dev-secret-key",
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -364,6 +377,8 @@ export const authOptions = {
 
     async session({ session, token }) {
       console.log("=== BUILDING SESSION ===");
+      console.log("Token available:", !!token);
+      console.log("Token accessToken:", !!token?.accessToken);
 
       // If refresh token expired, clear session
       if (token.error === "RefreshTokenExpired") {
@@ -377,6 +392,7 @@ export const authOptions = {
 
       // If there's an error but not expired, keep minimal session
       if (token.error) {
+        console.log("Session callback: Token has error:", token.error);
         session.error = token.error;
       }
 
@@ -410,6 +426,10 @@ export const authOptions = {
       };
 
       console.log("=== SESSION BUILT SUCCESSFULLY ===");
+      console.log("Final session:", {
+        accessToken: !!session.accessToken,
+        user: session.user ? { id: session.user.id, name: session.user.name } : null,
+      });
 
       return session;
     },
@@ -425,7 +445,8 @@ export const authOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: (process.env.NODE_ENV || "development") === "production",
+        secure: false, // Set to false for HTTP connections (server IP)
+        domain: undefined, // Let NextAuth handle domain detection
       },
     },
   },

@@ -92,6 +92,8 @@ const EmployeeLoginPage = () => {
         redirect: false,
       });
 
+      console.log("Sign in response:", response);
+
       if (response?.ok && !response?.error) {
         localStorage.setItem("login_type", "employee");
         toast.success("Добро пожаловать!");
@@ -99,12 +101,15 @@ const EmployeeLoginPage = () => {
 
         // Wait a moment for session to be established, then redirect
         setTimeout(() => {
+          console.log("Current session before redirect:", session);
           router.push("/employee-permission");
         }, 500);
       } else {
+        console.error("Sign in error:", response?.error);
         toast.error("Ошибка входа! " + (response?.error || "Неверные данные."));
       }
     } catch (error) {
+      console.error("Catch error:", error);
       toast.error("Произошла ошибка при входе в систему.");
     } finally {
       setIsLoading(false);
