@@ -417,19 +417,15 @@ export const authOptions = {
 
   cookies: {
     sessionToken: {
-      name:
-        (process.env.NODE_ENV || "development") === "production"
-          ? "__Secure-next-auth.session-token.project2"
-          : "next-auth.session-token.project2",
+      name: "next-auth.session-token.project3",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: (process.env.NODE_ENV || "development") === "production",
+        secure: false, // set to true only if you add HTTPS
       },
     },
   },
-
   events: {
     async signOut({ token }) {
       console.log("=== USER SIGNED OUT ===");
