@@ -192,19 +192,25 @@ async function refreshAccessToken(token) {
 }
 
 export const authOptions = {
+  // Critical for server deployments - must be set via environment variable
+  pages: {
+    signIn: "/employee-permission/login",
+    error: "/employee-permission/login",
+  },
+
   // Use JWT session strategy for stateless sessions (important for server deployments)
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
     updateAge: 60 * 60, // Update every hour
   },
-  
+
   // JWT configuration
   jwt: {
     secret: process.env.NEXTAUTH_SECRET || "dev-secret-key",
     maxAge: 24 * 60 * 60, // 24 hours
   },
-  
+
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -428,7 +434,9 @@ export const authOptions = {
       console.log("=== SESSION BUILT SUCCESSFULLY ===");
       console.log("Final session:", {
         accessToken: !!session.accessToken,
-        user: session.user ? { id: session.user.id, name: session.user.name } : null,
+        user: session.user
+          ? { id: session.user.id, name: session.user.name }
+          : null,
       });
 
       return session;
@@ -470,19 +478,6 @@ export const authOptions = {
       }
     },
   },
-
-  session: {
-    strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 1 day
-  },
-
-  pages: {
-    signIn: "/",
-    signOut: "10.20.6.139:3001",
-    error: "/auth/error",
-  },
-
-  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);
