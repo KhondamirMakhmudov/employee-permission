@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn, signOut, SessionProvider } from "next-auth/react";
 import toast from "react-hot-toast";
 import Input from "@/components/input";
 
@@ -96,7 +96,11 @@ const EmployeeLoginPage = () => {
         localStorage.setItem("login_type", "employee");
         toast.success("Добро пожаловать!");
         saveLogin(username, password);
-        router.push("/employee-permission");
+        
+        // Wait a moment for session to be established, then redirect
+        setTimeout(() => {
+          router.push("/employee-permission");
+        }, 500);
       } else {
         toast.error("Ошибка входа! " + (response?.error || "Неверные данные."));
       }

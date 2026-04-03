@@ -10,8 +10,18 @@ import { get } from "lodash";
 import { useEffect, useState } from "react";
 
 const EmployeePage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [employeesData, setEmployeesData] = useState({});
+
+  // Force session update on mount or when page becomes focused
+  useEffect(() => {
+    const handleFocus = () => {
+      // Session will automatically re-validate when tab regains focus
+    };
+    
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, []);
 
   const { data: allRequests } = useGetQuery({
     key: KEYS.owner,
@@ -96,46 +106,53 @@ const EmployeePage = () => {
   };
 
   // Show login prompt if user is not authenticated
-  if (!session) {
+  if (!session || status === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
           <div className="flex flex-col items-center text-center space-y-6">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-emerald-100 to-teal-100">
               <span className="material-symbols-outlined text-4xl text-emerald-600">
-                lock
+                {status === "loading" ? "schedule" : "lock"}
               </span>
             </div>
 
             <div className="space-y-2">
               <h1 className="text-2xl font-black text-gray-900">
-                Требуется аутентификация
+                {status === "loading"
+                  ? "Загрузка..."
+                  : "Требуется аутентификация"}
               </h1>
               <p className="text-gray-600">
-                Пожалуйста, войдите в систему для доступа к форме запроса
-                выхода.
+                {status === "loading"
+                  ? "Пожалуйста, подождите..."
+                  : "Пожалуйста, войдите в систему для доступа к форме запроса выхода."}
               </p>
             </div>
 
-            <Link
-              href="/employee-permission/login"
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <span className="material-symbols-outlined">login</span>
-              <span>Войти</span>
-            </Link>
-
-            <div className="pt-4 border-t border-gray-200 w-full">
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                <span>Вы руководитель?</span>
+            {status !== "loading" && (
+              <>
                 <Link
-                  href="/manager-login"
-                  className="text-emerald-600 font-semibold hover:underline"
+                  href="/employee-permission/login"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  Вход для руководителей
+                  <span className="material-symbols-outlined">login</span>
+                  <span>Войти</span>
                 </Link>
-              </div>
-            </div>
+
+                <div className="pt-4 border-t border-gray-200 w-full">
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                    <span>Вы руководитель?</span>
+                    <Link
+                      href="/manager-login"
+                      className="text-emerald-600 font-semibold hover:underline"
+                    >
+                      Вход для руководителей
+                    </Link>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
