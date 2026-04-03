@@ -451,10 +451,10 @@ export const authOptions = {
           : "next-auth.session-token.project2",
       options: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         path: "/",
-        secure: false, // Set to false for HTTP connections (server IP)
-        domain: undefined, // Let NextAuth handle domain detection
+        secure: true,
+        domain: undefined,
       },
     },
   },
