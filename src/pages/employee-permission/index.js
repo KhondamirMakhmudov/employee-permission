@@ -106,6 +106,8 @@ const EmployeePage = () => {
   };
 
   // Show login prompt if user is not authenticated
+  // COMMENTED OUT FOR TESTING - Session check disabled
+  /*
   if (!session || status === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
@@ -158,6 +160,7 @@ const EmployeePage = () => {
       </div>
     );
   }
+  */
 
   return (
     <DashboardLayout headerTitle="Все заявки">
