@@ -2,8 +2,14 @@
 const nextConfig = {
   reactCompiler: true,
   reactStrictMode: true,
+  outputFileTracingRoot: process.cwd(),
   images: {
-    domains: ["lh3.googleusercontent.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
   },
 };
 
