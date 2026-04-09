@@ -168,7 +168,6 @@ async function refreshAccessToken(token) {
         tokenType: refreshedTokens.token_type || token.tokenType || "Bearer",
         accessTokenExpires: accessTokenExpires,
         userData: newDecoded,
-        userDetails: userDetails,
         error: undefined,
       };
     } catch (error) {
@@ -270,8 +269,7 @@ export const authOptions = {
             refreshToken: data.refresh_token,
             tokenType: data.token_type || "Bearer",
             accessTokenExpires: accessTokenExpires,
-            userData: decoded, // Token payload
-            userDetails: userDetails, // Full user details from API
+            userData: decoded, // Token payload only
           };
         } catch (error) {
           console.error("Authorize error:", error);
@@ -380,32 +378,26 @@ export const authOptions = {
         session.error = token.error;
       }
 
-      // Build session with token data
+      // Build session with token data (keep minimal to reduce header size)
       session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
       session.tokenType = token.tokenType;
       session.accessTokenExpires = token.accessTokenExpires;
 
-      // Extract roles and permissions from userDetails (from API)
-      const roles = token.userDetails?.roles || [];
-      const roleNames = extractRoles(roles);
-      const permissions = extractPermissions(roles);
-      const hasAdminAccess = isAdmin(roles);
+      // Extract only role names from token data
+      const roleNames = token.userData?.roles || [];
+      const hasAdminAccess = roleNames.includes("admin");
 
       console.log("Session roles extracted:", roleNames);
-      console.log("Session permissions count:", permissions.length);
       console.log("Session has admin access:", hasAdminAccess);
 
+      // Keep session minimal to avoid 431 header too large error
       session.user = {
         id: token.id,
         name: token.name,
         username: token.userData?.username,
         employee_id: token.userData?.employee_id,
         unit_code: token.userData?.unit_code,
-        // Role structure from API
-        roles: roleNames, // Array of role names: ["admin"]
-        rolesDetail: roles, // Full roles array with permissions
-        permissions: permissions, // Flattened permissions array
+        roles: roleNames, // Only role names from token
         isAdmin: hasAdminAccess, // Boolean flag for easy access checking
       };
 
